@@ -271,7 +271,9 @@ namespace ChickenCS
             // Step 2: Parse
             if (minichicken)
             {
-                foreach(string i in program.Split(' ',StringSplitOptions.RemoveEmptyEntries))
+                program = program.Replace("\r\n", "\n");
+                program = program.Replace("\n", " ");
+                foreach (string i in program.Split(' ',StringSplitOptions.RemoveEmptyEntries))
                 {
                     try
                     {
@@ -309,6 +311,20 @@ namespace ChickenCS
             while (ip < stack.Count)
             {
                 if (!running) break;
+                if (Environment.GetEnvironmentVariable("CHICKEN_DEBUG") != null)
+                {
+                    Console.Write("Stack size: ");
+                    Console.WriteLine(stack.Count);
+                    foreach (Chicken i in stack)
+                    {
+                        if (i.type == STACK) Console.WriteLine("<STACK>");
+                        else Console.WriteLine(i.str);
+                    }
+                    Console.WriteLine("---");
+                    Console.WriteLine("IP: " + Convert.ToString(ip));
+                    Console.WriteLine("Current command: " + stack[ip].str);
+                    Console.ReadKey();
+                }
                 switch (stack[ip].str)
                 {
                     case "0":
@@ -442,19 +458,6 @@ namespace ChickenCS
                         {
                             stack.Add(new Chicken((BigInteger.Parse(stack[ip].str) - 10).ToString(),NUM)); break;
                         }
-                }
-                if (Environment.GetEnvironmentVariable("CHICKEN_DEBUG") != null)
-                {
-                    Console.WriteLine(stack.Count);
-                    foreach (Chicken i in stack)
-                    {
-                        if (i.type == STACK) Console.WriteLine("<STACK>");
-                        else Console.WriteLine(i.str);
-                    }
-                    Console.WriteLine("---");
-                    Console.WriteLine("IP: " + Convert.ToString(ip));
-                    Console.WriteLine("Current command: " + stack[ip].str);
-                    Console.ReadKey();
                 }
                 ip++;
             }
