@@ -164,7 +164,9 @@ namespace ChickenCS
                 string xstr = x.str, ystr = y.str;
                 if (x.type == BOOL) xstr = ((xstr == "true") ? "1" : "0");
                 if (y.type == BOOL) ystr = ((xstr == "true") ? "1" : "0");
-                return new Chicken(sub(xstr, ystr), NUM);
+                string r = sub(xstr, ystr);
+                if(r!="NaN") return new Chicken(r, NUM);
+                return new Chicken("NaN", NAN);
             }
 
             public static Chicken operator *(Chicken x, Chicken y)
@@ -173,7 +175,9 @@ namespace ChickenCS
                 string xstr = x.str, ystr = y.str;
                 if (x.type == BOOL) xstr = ((xstr == "true") ? "1" : "0");
                 if (y.type == BOOL) ystr = ((xstr == "true") ? "1" : "0");
-                return new Chicken(mul(xstr, ystr), NUM);
+                string r = mul(xstr, ystr);
+                if (r != "NaN") return new Chicken(r, NUM);
+                return new Chicken("NaN", NAN);
             }
 
             public bool truthy()
@@ -195,6 +199,7 @@ namespace ChickenCS
             // Step 1: Input
             bool minichicken = false;
             string program = "";
+            string[] typenames = { "NUM", "STR", "BOOL", "UND", "NAN" };
             foreach(string i in args){
                 if (i == "-h")
                 {
@@ -277,7 +282,7 @@ namespace ChickenCS
                 {
                     try
                     {
-                        BigInteger t = BigInteger.Parse(i);
+                        BigInteger.Parse(i);
                     }catch (Exception)
                     {
                         Console.WriteLine("Error: Number expected");
@@ -318,7 +323,12 @@ namespace ChickenCS
                     foreach (Chicken i in stack)
                     {
                         if (i.type == STACK) Console.WriteLine("<STACK>");
-                        else Console.WriteLine(i.str);
+                        else
+                        {
+                            Console.Write(i.str);
+                            Console.Write(':');
+                            Console.WriteLine(typenames[i.type]);
+                        }
                     }
                     Console.WriteLine("---");
                     Console.WriteLine("IP: " + Convert.ToString(ip));
@@ -385,7 +395,7 @@ namespace ChickenCS
                                     {
                                         bstr = (bstr == "true") ? "1" : "0";
                                     }
-                                    if ((bstr == "0" && astr == "") || (astr == "0" && bstr == "")) res = "true"; // Special case: 0==''
+                                    if ((bstr == "0" && astr == "" && b.type != NUM) || (astr == "0" && bstr == "") && b.type != NUM) res = "true"; // Special case: 0==''
                                     else res = (astr == bstr) ? "true" : "false";
                                 }
                             }
